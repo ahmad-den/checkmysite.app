@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Enable the custom scrollbar */
+/* Custom Scrollbar */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thumb {
+  background-color: #007BFF;
+}
+
+.scrollbar-track-gray-200 {
+  background-color: #E5E7EB;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #007BFF;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background-color: #E5E7EB;
+}
+
+
+/* Modern Loader (Spinner) */
+.loader {
+  border: 6px solid #f3f3f3;  /* Light gray */
+  border-top: 6px solid #007BFF;  /* Blue */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Cache Status Stickers */
+.cache-status-stickers {
+  display: flex;
+  justify-content: center; /* Ensure stickers are centered */
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px; /* Space between stickers */
+}
+
+/* Cache Status Items */
+.cache-status-item {
+  display: flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 500;
+  background-color: #f0f0f0;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.cache-status-item.hit {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.cache-status-item.miss {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.cache-status-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Sticker Design */
+.sticker {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.9em;
+  font-weight: 500;
+  color: #fff;
+  background-color: #333;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sticker.hit {
+  background-color: #28a745;  /* Green for HIT */
+}
+
+.sticker.miss {
+  background-color: #ffc107;  /* Yellow for BYPASS or Miss */
+}
+
+.sticker:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  /* Lift effect */
+}
+
+.sticker .mr-2 {
+  margin-right: 8px;
+}
+
+/* Flexbox styling for inline stickers */
+.cache-status-stickers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;  /* Ensure that stickers are aligned in the center */
+  align-items: center;
+}
+
+/* Toggle Button Styling */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for small screens */
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr); /* 3 columns for large screens */
+    min-height: 100px; /* Ensure buttons remain stable */
+    height: auto; /* Prevent buttons from jumping */
+  }
+}
+
+/* Ensure buttons have equal height and prevent shifting */
+.toggle-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60px;
+  padding: 10px;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.toggle-button:hover {
+  background-color: #0056b3;
+}
+
+@keyframes lightning-flicker {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

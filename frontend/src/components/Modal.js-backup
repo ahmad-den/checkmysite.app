@@ -1,0 +1,163 @@
+import React from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import ReactDOM from 'react-dom'; // For portal to render modal outside the current component
+
+const Modal = ({ title, content, onClose, onCopy, copied }) => {
+  const handleCopy = () => {
+    onCopy();
+    toast.success('Copied to clipboard!');  // Display toast notification
+  };
+
+  // Function to format content for recommendations with sticker-style icons
+  const formatContent = (item) => {
+    if (typeof item === 'string') {
+      // Check for specific status keywords and add appropriate icons
+      if (item.includes('No changes needed')) {
+        const parts = item.split('No changes needed');
+        return (
+          <>
+            {parts[0]}
+            <span className="inline-flex items-center ml-2 text-green-800 bg-green-100 px-2 py-1 rounded-full text-xs font-semibold">
+              <FontAwesomeIcon icon={faCheckCircle} className="mr-5" />
+              No changes needed
+            </span>
+          </>
+        );
+      }
+
+      if (item.includes('Exclude from delay')) {
+        const parts = item.split('Exclude from delay');
+        return (
+          <>
+            {parts[0]}
+            <span className="inline-flex items-center ml-2 text-red-800 bg-red-100 px-2 py-1 rounded-full text-xs font-semibold">
+              <FontAwesomeIcon icon={faExclamationTriangle} className="mr-1" />
+              Exclude from delay
+            </span>
+          </>
+        );
+      }
+
+      // Colorize the "--- pmdelayed" part
+      if (item.includes('--- pmdelayed')) {
+        const parts = item.split('--- pmdelayed');
+        return (
+          <>
+            {parts[0]}
+            <span className="ml-2 text-red-500">--- pmdelayed</span>
+          </>
+        );
+      }
+
+      return item;
+    }
+
+    return item;
+  };
+
+  // Function to handle grouping for "Sanity Check Recommendations"
+  const formatSanityCheckRecommendations = (items) => {
+    const groupedContent = {};
+
+    items.forEach((item) => {
+      const [pluginTheme, jsIdAndStatus] = item.split(': ');
+      const [jsId, status] = jsIdAndStatus.split(' - ');
+
+      if (!groupedContent[pluginTheme]) {
+        groupedContent[pluginTheme] = [];
+      }
+      groupedContent[pluginTheme].push({ jsId, status });
+    });
+
+    return groupedContent;
+  };
+
+  const renderStatusBadge = (status) => {
+    if (status === 'No changes needed') {
+      return (
+        <span className="inline-flex items-center ml-2 text-green-800 bg-green-100 px-2 py-1 rounded-full text-xs font-semibold">
+          <FontAwesomeIcon icon={faCheckCircle} className="mr-1" />
+          No changes needed
+        </span>
+      );
+    } else if (status === 'Exclude from delay') {
+      return (
+        <span className="inline-flex items-center ml-2 text-red-800 bg-red-100 px-2 py-1 rounded-full text-xs font-semibold">
+          <FontAwesomeIcon icon={faExclamationTriangle} className="mr-1" />
+          Exclude from delay
+        </span>
+      );
+    }
+    return null;
+  };
+
+  // Render modal into a portal to avoid affecting layout
+  return ReactDOM.createPortal(
+    <>
+      <ToastContainer />
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full p-6 relative">
+          {/* Modal Header */}
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-semibold text-[#007BFF]">{title}</h2>
+            <button
+              onClick={onClose}
+              className="text-gray-600 hover:text-gray-900 focus:outline-none"
+            >
+              &#10005; {/* Close button */}
+            </button>
+          </div>
+
+          {/* Modal Content */}
+          <div className="mt-4 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-[#007BFF] scrollbar-track-gray-200 pr-2">
+            <ul className="list-disc ml-6 text-sm">
+              {/* Special formatting for "Sanity Check Recommendations" */}
+              {title === 'Sanity Check Recommendations' && Array.isArray(content) ? (
+                Object.entries(formatSanityCheckRecommendations(content)).map(([pluginTheme, jsIds], index) => (
+                  <div key={index} className="mb-4">
+                    {/* Plugin/Theme Heading */}
+                    <h3 className="font-semibold text-lg text-[#007BFF] mb-2">{pluginTheme}</h3>
+                    {/* JS IDs with status */}
+                    <ul className="list-disc ml-6 text-sm">
+                      {jsIds.map((jsItem, idx) => (
+                        <li key={idx} className="flex items-center">
+                          <span>{jsItem.jsId}</span>
+                          {renderStatusBadge(jsItem.status)}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              ) : (
+                // Handle default content formatting
+                Array.isArray(content) ? (
+                  content.map((item, index) => (
+                    <li key={index}>{formatContent(item)}</li>
+                  ))
+                ) : (
+                  <li>{formatContent(content)}</li>
+                )
+              )}
+            </ul>
+          </div>
+
+          {/* Footer with Copy Button */}
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={handleCopy}
+              className="bg-[#32CC86] text-white py-2 px-4 rounded-lg hover:bg-[#28a97f] transition duration-300"
+            >
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </>,
+    document.body // Render modal into the body to avoid layout issues
+  );
+};
+
+export default Modal;

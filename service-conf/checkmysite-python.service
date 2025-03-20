@@ -1,0 +1,18 @@
+
+[Unit]
+Description=Gunicorn instance to serve the Python backend
+After=network.target
+
+[Service]
+User=ahmad
+Group=www-data
+WorkingDirectory=/var/www/checkmysite2/backend
+Environment="PATH=/home/ahmad/venv/bin"
+
+# Start Gunicorn with 5 workers, bind to the Unix socket, and set a 120s timeout
+ExecStart=/home/ahmad/venv/bin/gunicorn --workers 5 --bind unix:/var/www/checkmysite2/backend/backend.sock \
+  --timeout 120 --access-logfile /var/www/checkmysite2/backend/logs/access.log -m 007 app:app
+
+[Install]
+WantedBy=multi-user.target
+
