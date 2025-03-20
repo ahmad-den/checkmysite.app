@@ -1,0 +1,21 @@
+{
+  "name": "lighthouse-backend",
+  "version": "1.0.0",
+  "description": "Lighthouse report generator",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bull": "^4.16.3",
+    "chrome-launcher": "^1.1.2",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "lighthouse": "^12.3.0",
+    "p-queue": "^8.0.1",
+    "path": "^0.12.7",
+    "puppeteer": "^24.2.1"
+  },
+  "type": "module"
+}

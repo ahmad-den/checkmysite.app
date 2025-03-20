@@ -1,0 +1,16 @@
+[Unit]
+Description=Node.js Lighthouse Backend Service
+After=network.target
+
+[Service]
+User=ahmad
+Group=www-data
+Environment="CHROME_PATH=/usr/bin/google-chrome"
+WorkingDirectory=/var/www/checkmysite2/lighthouse-backend
+ExecStart=/home/ahmad/.nvm/versions/node/v20.17.0/bin/node /var/www/checkmysite2/lighthouse-backend/server.js
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bigscoots PM Exclusions - Delay JS</title>
+
+    <!-- Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Monaco Editor from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.21.2/min/vs/loader.js"></script>
+
+    <style>
+        #editor {
+            width: 100%; /* 100% width for a larger screen layout */
+            height: 700px; /* Increase height */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="container mx-auto px-8 py-8">
+        <h1 class="text-4xl font-bold text-blue-600 text-left mb-4">Bigscoots PM Exclusions - Delay JS</h1>
+
+        <form id="editorForm" action="/save_pm_exclusions" method="post" class="mt-4">
+            <!-- Hidden textarea to store Monaco content before submitting -->
+            <textarea id="hidden-editor" name="editor_content" class="hidden">{{ content | safe }}</textarea>
+
+            <!-- Monaco Editor container -->
+            <div id="editor" class="bg-gray-900 text-white rounded-md"></div>
+
+            <!-- Save Button on the Left -->
+            <div class="mt-6">
+                <button type="button" class="px-6 py-3 bg-green-600 text-white font-bold rounded-md shadow hover:bg-green-500 float-left" onclick="submitForm()">Save Changes</button>
+            </div>
+
+            <!-- Success and Error Messages -->
+            <div id="save-message" class="text-green-500 mt-4 hidden">Your changes have been successfully saved!</div>
+            <div id="error-message" class="text-red-500 mt-4 hidden"></div>
+        </form>
+    </div>
+
+
+    <script>
+    // Load Monaco Editor
+    require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.21.2/min/vs' }});
+    require(['vs/editor/editor.main'], function() {
+        var editor = monaco.editor.create(document.getElementById('editor'), {
+            value: document.getElementById('hidden-editor').value,  // Pre-fill editor with file content
+            language: 'python',  // Python syntax highlighting
+            theme: 'vs-dark',  // Dark theme
+            automaticLayout: true,
+            lineNumbers: 'on',
+            minimap: { enabled: true },  // Show minimap of code
+            fontSize: 14,
+            wordWrap: 'on',
+            scrollBeyondLastLine: false,
+            folding: true,
+            autoClosingBrackets: 'always',
+            autoClosingQuotes: 'always'
+        });
+
+        // Function to validate Python code using the backend before saving
+        function validateCode(code) {
+            return fetch("/validate_syntax", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ editor_content: code })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error with the request');
+                }
+                return response.json();  // Ensure we're always parsing JSON
+            });
+        }
+
+        // Function to save the Python file if validation succeeds
+        window.submitForm = async function() {
+            const code = editor.getValue();
+            try {
+                const validationResult = await validateCode(code);
+
+                if (validationResult.valid) {
+                    document.getElementById('hidden-editor').value = code;  // Sync Monaco content
+                    fetch("/save_pm_exclusions", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams(new FormData(document.getElementById('editorForm'))).toString()
+                    }).then(response => {
+                        if (response.ok) {
+                            document.getElementById('save-message').classList.remove('hidden');
+                            document.getElementById('error-message').classList.add('hidden');
+                            setTimeout(() => {
+                                document.getElementById('save-message').classList.add('hidden');
+                            }, 3000);
+                        } else {
+                            alert("Failed to save changes. Please try again.");
+                        }
+                    }).catch(error => {
+                        console.error("Error saving file:", error);
+                        alert("An error occurred while saving.");
+                    });
+                } else {
+                    document.getElementById('error-message').innerText = "Syntax Error: " + validationResult.error;
+                    document.getElementById('error-message').classList.remove('hidden');
+                    document.getElementById('save-message').classList.add('hidden');
+                }
+            } catch (error) {
+                console.error("Error in validation or saving:", error);
+                document.getElementById('error-message').innerText = "Error validating the code.";
+                document.getElementById('error-message').classList.remove('hidden');
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
